@@ -10,7 +10,7 @@ export class HashMap {
     const primeNumber = 31;
 
     for (let i = 0; i < key.length; i++) {
-      hashCode = (primeNumber * hashCode + key.charCodeAt(i)) % capacity; //or capacity = 16;??
+      hashCode = (primeNumber * hashCode + key.charCodeAt(i)) % this.capacity; //or capacity = 16;??
     }
     return hashCode;
   }
@@ -19,17 +19,24 @@ export class HashMap {
     const index = this.hash(key);
     const obj = { key, value };
 
-    if (buckets[index].length === 0) {
-      buckets.splice(index, 1, obj);
-      count++;
+    if (index < 0 || index >= this.buckets.length) {
+      throw new Error("Trying to access index out of bounds");
+    }
+
+    if (this.buckets[index].length === 0) {
+      this.buckets.splice(index, 1, obj);
+      this.count++;
     } else {
       if (this.buckets.some((obj) => obj.key === key)) {
         obj.value = value;
         this.buckets.splice(index, 1, obj);
       } else {
-        throw new Error("bucket is not empty");
+        // throw new Error("bucket is not empty");
+        console.log("Error! bucket is not empty");
       }
     }
+    console.log(index);
+    return console.log(this.buckets);
   }
 
   get(key) {
@@ -51,24 +58,44 @@ export class HashMap {
   }
 
   length() {
-    return this.count;
-    //return number of stored keys (do i let the var?)
+    return console.log(`the length is: ${this.count}`);
   }
 
   clear() {
-    //remove all entries in the hash map (what's entries?? the keys??)
+    this.buckets = Array.from({ length: 16 }, () => []);
   }
 
   keys() {
-    //return [keys inside hashmap]
+    let keys = [];
+    for (let i = 0; i < this.buckets.length; i++) {
+      keys[i] = this.buckets[i]["key"];
+    }
+    let filtered = keys.reduce((item, el) => {
+      if (el !== undefined) {
+        item.push(el);
+      }
+      return item;
+    }, []);
+    console.log(filtered);
   }
 
   values() {
-    //return [values]
+    const values = [];
+    this.buckets.forEach((bucket) => {
+      if (bucket.value !== undefined) {
+        values.push(bucket.value);
+      }
+    });
+    console.log(values);
   }
 
   entries() {
-    //return [key, value] e.g.: [[firstKey, firstValue], [secondKey, secondValue]]
+    const entries = this.buckets.map((bucket) => {
+      if (bucket.length != 0) return [bucket.key, bucket.value];
+    });
+    const filtered = entries.filter((arr) => arr);
+
+    console.log(filtered);
   }
 
   //implement near the end with some methods?? grow buckets ->
